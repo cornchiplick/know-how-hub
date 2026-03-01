@@ -49,3 +49,12 @@ datas/*.db-journal
 datas/uploads/*
 !datas/.gitkeep
 !datas/uploads/.gitkeep
+
+# claude
+.claude/settings.local.json
+
+# project docs (개발 내부 문서)
+DEV_PLAN.md
+IMPLEMENTATION_REPORT.md
+QA_REPORT.md
+SPEC.md
