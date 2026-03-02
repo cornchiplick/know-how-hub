@@ -1,1 +1,6 @@
-// FSD entities layer — 비즈니스 엔티티
+export {
+  createCategory,
+  type CreateCategoryResult,
+  categoryFormSchema,
+  type CategoryFormValues,
+} from "./category";
