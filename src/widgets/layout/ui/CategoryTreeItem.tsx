@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { getGuidesByCategory, type GuideListItem } from "@/entities/guide";
+import { useQuery } from "@tanstack/react-query";
+import { getGuidesByCategory } from "@/entities/guide";
 import { useSidebar } from "./SidebarContext";
 
 interface CategoryTreeItemProps {
@@ -19,56 +19,18 @@ export function CategoryTreeItem({
 }: CategoryTreeItemProps) {
   const { expandedCategories, toggleCategory, expandCategory, currentGuideId } =
     useSidebar();
-  const pathname = usePathname();
   const expanded = expandedCategories.has(id);
-  const [guides, setGuides] = useState<GuideListItem[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const guidesRef = useRef<GuideListItem[] | null>(null);
   const prevGuideIdRef = useRef<number | null>(null);
-  const prevPathnameRef = useRef(pathname);
 
-  const loadGuides = useCallback(
-    async (useCache = true) => {
-      if (useCache && guidesRef.current !== null) return guidesRef.current;
+  const { data: guides = [], isLoading: loading } = useQuery({
+    queryKey: ["guides", id],
+    queryFn: () => getGuidesByCategory(id),
+    staleTime: 5 * 60 * 1000,
+  });
 
-      setLoading(true);
-      try {
-        const data = await getGuidesByCategory(id);
-        guidesRef.current = data;
-        setGuides(data);
-        return data;
-      } catch (error) {
-        console.error("Failed to fetch guides:", error);
-        guidesRef.current = [];
-        setGuides([]);
-        return [];
-      } finally {
-        setLoading(false);
-      }
-    },
-    [id],
-  );
-
-  // pathname 변경 시 캐시 무효화 후 재로드
-  useEffect(() => {
-    if (prevPathnameRef.current === pathname) return;
-    prevPathnameRef.current = pathname;
-
-    guidesRef.current = null;
-    if (expanded) {
-      loadGuides(false);
-    }
-  }, [pathname, expanded, loadGuides]);
-
-  const handleToggle = useCallback(async () => {
-    if (expanded) {
-      toggleCategory(id);
-      return;
-    }
-
+  const handleToggle = useCallback(() => {
     toggleCategory(id);
-    await loadGuides(false);
-  }, [expanded, toggleCategory, id, loadGuides]);
+  }, [toggleCategory, id]);
 
   // 현재 guideId가 이 카테고리에 속하면 자동으로 폴더 펼침
   useEffect(() => {
@@ -76,18 +38,10 @@ export function CategoryTreeItem({
     if (currentGuideId === prevGuideIdRef.current) return;
     prevGuideIdRef.current = currentGuideId;
 
-    const checkAndExpand = async () => {
-      const loadedGuides = await loadGuides();
-      const hasCurrentGuide = loadedGuides.some(
-        (g) => g.id === currentGuideId,
-      );
-      if (hasCurrentGuide) {
-        expandCategory(id);
-      }
-    };
-
-    checkAndExpand();
-  }, [currentGuideId, id, expandCategory, loadGuides]);
+    if (guides.some((g) => g.id === currentGuideId)) {
+      expandCategory(id);
+    }
+  }, [currentGuideId, guides, id, expandCategory]);
 
   return (
     <div>
@@ -140,13 +94,12 @@ export function CategoryTreeItem({
               불러오는 중...
             </div>
           )}
-          {!loading && guides !== null && guides.length === 0 && (
+          {!loading && guides.length === 0 && (
             <div className="px-2 py-1.5 text-xs text-zinc-400 dark:text-zinc-500">
               등록된 자료가 없습니다
             </div>
           )}
           {!loading &&
-            guides !== null &&
             guides.length > 0 &&
             guides.map((guide) => {
               const isActive = guide.id === currentGuideId;
