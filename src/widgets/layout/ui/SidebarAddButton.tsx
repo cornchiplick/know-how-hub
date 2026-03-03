@@ -3,7 +3,17 @@
 import { useState } from "react";
 import { AddItemModal } from "@/features/category";
 
-export function SidebarAddButton() {
+interface Category {
+  id: number;
+  name: string;
+  description: string | null;
+}
+
+interface SidebarAddButtonProps {
+  categories: Category[];
+}
+
+export function SidebarAddButton({ categories }: SidebarAddButtonProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,7 +38,11 @@ export function SidebarAddButton() {
         </svg>
         추가
       </button>
-      <AddItemModal open={open} onClose={() => setOpen(false)} />
+      <AddItemModal
+        open={open}
+        onClose={() => setOpen(false)}
+        categories={categories}
+      />
     </>
   );
 }

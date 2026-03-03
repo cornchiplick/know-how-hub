@@ -18,7 +18,7 @@ export function SidebarContent({ categories }: SidebarContentProps) {
   return (
     <aside className="flex w-60 flex-col border-r border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="border-b border-zinc-200 p-3 dark:border-zinc-800">
-        <SidebarAddButton />
+        <SidebarAddButton categories={categories} />
       </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-auto p-3">
         <Link
