@@ -6,4 +6,11 @@ export {
   type CategoryFormValues,
 } from "./category";
 
-export { getGuidesByCategory, type GuideListItem } from "./guide";
+export {
+  getGuidesByCategory,
+  createGuide,
+  updateGuide,
+  type GuideListItem,
+  type CreateGuideInput,
+  type UpdateGuideInput,
+} from "./guide";

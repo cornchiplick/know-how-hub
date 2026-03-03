@@ -1,1 +1,8 @@
-export { getGuidesByCategory, type GuideListItem } from "./actions";
+export {
+  getGuidesByCategory,
+  createGuide,
+  updateGuide,
+  type GuideListItem,
+  type CreateGuideInput,
+  type UpdateGuideInput,
+} from "./actions";

@@ -11,6 +11,17 @@ export async function getCategories() {
   });
 }
 
+export async function getCategoryById(id: number) {
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  return prisma.category.findUnique({
+    where: { id },
+    select: { id: true, name: true },
+  });
+}
+
 export async function getCategoryWithGuides(id: number) {
   return prisma.category.findUnique({
     where: { id },
