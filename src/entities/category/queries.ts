@@ -10,3 +10,18 @@ export async function getCategories() {
     },
   });
 }
+
+export async function getCategoryWithGuides(id: number) {
+  return prisma.category.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      guides: {
+        orderBy: { sortOrder: "asc" },
+        select: { id: true, title: true },
+      },
+    },
+  });
+}
