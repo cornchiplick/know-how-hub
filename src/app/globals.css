@@ -67,13 +67,29 @@ body {
   }
 }
 
-/* Prose overrides for Tiptap */
+/* Viewer mode: mention 스타일 강화 */
 .guide-viewer .tiptap .mention-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: default;
+}
+
+.guide-viewer.ctrl-active .tiptap .mention-link {
   cursor: pointer;
 }
 
 .guide-viewer .tiptap .mention-link::before {
   content: "";
+}
+
+/* Viewer mode: 코드블럭 클릭 복사 */
+.guide-viewer .tiptap pre {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.guide-viewer .tiptap pre:hover {
+  background-color: #2d2d2d;
 }
 
 .tiptap pre {
