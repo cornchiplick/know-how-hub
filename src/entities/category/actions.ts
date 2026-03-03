@@ -52,3 +52,22 @@ export async function createCategory(
 
   return { success: true };
 }
+
+export async function resetAllData(): Promise<
+  { success: true } | { success: false; error: string }
+> {
+  if (process.env.NODE_ENV === "production") {
+    return { success: false, error: "운영 환경에서는 사용할 수 없습니다." };
+  }
+
+  try {
+    await prisma.guide.deleteMany();
+    await prisma.category.deleteMany();
+  } catch (error) {
+    console.error("resetAllData failed:", error);
+    return { success: false, error: "데이터 초기화 중 오류가 발생했습니다." };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true };
+}
