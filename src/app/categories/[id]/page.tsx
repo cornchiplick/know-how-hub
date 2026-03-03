@@ -40,6 +40,28 @@ export default async function CategoryDetailPage({
         </p>
       )}
 
+      <div className="mt-4">
+        <Link
+          href={`/guides/new?categoryId=${category.id}`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          자료 추가
+        </Link>
+      </div>
+
       <hr className="my-6 border-zinc-200 dark:border-zinc-700" />
 
       {category.guides.length === 0 ? (
