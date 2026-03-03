@@ -3,7 +3,7 @@ export default function Home() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          Know-How Hub
+          사내가이드및지식관리시스템설계헬퍼서비스
         </h2>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
           사내 가이드와 지식을 체계적으로 관리하고 공유하는 공간입니다.

@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
   try {
     const guides = await searchGuides(query, excludeId);
     return NextResponse.json(guides);
-  } catch {
+  } catch (error) {
+    console.error("GET /api/guides/search failed:", error);
     return NextResponse.json([], { status: 500 });
   }
 }

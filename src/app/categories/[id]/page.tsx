@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getCategoryWithGuides } from "@/entities/category/queries";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -12,8 +12,8 @@ export async function generateMetadata({
 
   return {
     title: category
-      ? `${category.name} | Know-How Hub`
-      : "폴더를 찾을 수 없음 | Know-How Hub",
+      ? `${category.name} | 사내가이드및지식관리시스템설계헬퍼서비스`
+      : "폴더를 찾을 수 없음 | 사내가이드및지식관리시스템설계헬퍼서비스",
   };
 }
 

@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
 import { getGuideById } from "@/entities/guide/queries";
 import { GuideDetailView } from "@/features/guide";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -12,8 +12,8 @@ export async function generateMetadata({
 
   return {
     title: guide
-      ? `${guide.title} | Know-How Hub`
-      : "자료를 찾을 수 없음 | Know-How Hub",
+      ? `${guide.title} | 사내가이드및지식관리시스템설계헬퍼서비스`
+      : "자료를 찾을 수 없음 | 사내가이드및지식관리시스템설계헬퍼서비스",
   };
 }
 

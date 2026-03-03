@@ -1,7 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
 import { resetAllData } from "@/entities";
+import { useTransition } from "react";
 
 export function Header() {
   const [isPending, startTransition] = useTransition();
@@ -28,7 +28,9 @@ export function Header() {
         className="cursor-pointer select-none text-lg font-semibold text-zinc-900 dark:text-zinc-100"
         onClick={handleLogoClick}
       >
-        {isPending ? "초기화 중..." : "Know-How Hub"}
+        {isPending
+          ? "초기화 중..."
+          : "사내가이드및지식관리시스템설계헬퍼서비스"}
       </h1>
     </header>
   );

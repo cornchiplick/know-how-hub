@@ -1,8 +1,8 @@
+import { Header, Sidebar, SidebarProvider } from "@/widgets/layout";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Header, Sidebar, SidebarProvider } from "@/widgets/layout";
-import { Providers } from "./providers";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Know-How Hub",
+  title: "사내가이드및지식관리시스템설계헬퍼서비스",
   description: "사내 가이드 및 지식관리 시스템",
 };
 
