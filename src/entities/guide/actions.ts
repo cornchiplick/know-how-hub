@@ -125,3 +125,37 @@ export async function updateGuide(input: UpdateGuideInput) {
   revalidatePath("/", "layout");
   return { success: true as const };
 }
+
+export async function deleteGuide(id: number) {
+  if (!Number.isInteger(id) || id <= 0) {
+    return { success: false as const, error: "유효하지 않은 자료 ID입니다." };
+  }
+
+  try {
+    const guide = await prisma.guide.delete({
+      where: { id },
+      select: { categoryId: true },
+    });
+
+    revalidatePath("/", "layout");
+    return { success: true as const, categoryId: guide.categoryId };
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code: string }).code === "P2025"
+    ) {
+      return {
+        success: false as const,
+        error: "존재하지 않는 자료입니다.",
+      };
+    }
+
+    console.error("deleteGuide failed:", error);
+    return {
+      success: false as const,
+      error: "자료 삭제 중 오류가 발생했습니다.",
+    };
+  }
+}
