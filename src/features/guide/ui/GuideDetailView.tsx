@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { GuideViewer } from "./GuideViewer";
 import { GuideEditor } from "./GuideEditor";
 import { CategoryBadge } from "./CategoryBadge";
@@ -14,19 +16,37 @@ interface GuideData {
   content: string;
   categoryId: number;
   category: { id: number; name: string };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface GuideDetailViewProps {
   guide: GuideData;
 }
 
-export function GuideDetailView({ guide }: GuideDetailViewProps) {
+async function fetchGuide(id: number): Promise<GuideData> {
+  const res = await fetch(`/api/guides/${id}`);
+  if (!res.ok) throw new Error("자료를 불러오지 못했습니다.");
+  return res.json();
+}
+
+export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const queryKey = ["guide", initialGuide.id];
+  const [initialDataUpdatedAt] = useState(() => Date.now());
+
+  const { data: guide = initialGuide } = useQuery({
+    queryKey,
+    queryFn: () => fetchGuide(initialGuide.id),
+    initialData: initialGuide,
+    initialDataUpdatedAt,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(guide.title);
-  const [editContent, setEditContent] = useState(guide.content);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -57,7 +77,9 @@ export function GuideDetailView({ guide }: GuideDetailViewProps) {
 
       if (result.success) {
         setIsEditing(false);
-        router.refresh();
+        toast.success("저장되었습니다.");
+        queryClient.invalidateQueries({ queryKey });
+        queryClient.invalidateQueries({ queryKey: ["guides", guide.categoryId] });
       } else {
         setError(result.error);
       }
@@ -73,7 +95,6 @@ export function GuideDetailView({ guide }: GuideDetailViewProps) {
       if (result.success) {
         setIsDeleteModalOpen(false);
         router.push(`/categories/${result.categoryId}`);
-        router.refresh();
       } else {
         setDeleteError(result.error);
       }

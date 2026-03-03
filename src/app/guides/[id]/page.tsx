@@ -29,5 +29,13 @@ export default async function GuideDetailPage({
     notFound();
   }
 
-  return <GuideDetailView guide={guide} />;
+  return (
+    <GuideDetailView
+      guide={{
+        ...guide,
+        createdAt: guide.createdAt.toISOString(),
+        updatedAt: guide.updatedAt.toISOString(),
+      }}
+    />
+  );
 }
