@@ -76,6 +76,9 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
       });
 
       if (result.success) {
+        queryClient.setQueryData(queryKey, (old: GuideData | undefined) =>
+          old ? { ...old, title: editTitle, content: editContent } : old,
+        );
         setIsEditing(false);
         toast.success("저장되었습니다.");
         queryClient.invalidateQueries({ queryKey });
