@@ -32,6 +32,13 @@ export function GuideViewer({ content }: GuideViewerProps) {
       Image.configure({
         inline: false,
         allowBase64: false,
+        resize: {
+          enabled: true,
+          directions: ["right", "bottom"],
+          minWidth: 100,
+          minHeight: 100,
+          alwaysPreserveAspectRatio: true,
+        },
       }),
       Mention.configure({
         HTMLAttributes: {

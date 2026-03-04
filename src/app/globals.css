@@ -202,3 +202,43 @@ body {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
+/* Tiptap Image Resize */
+.tiptap [data-resize-container] {
+  margin: 1rem 0;
+}
+
+.tiptap [data-resize-container] img {
+  margin: 0;
+  display: block;
+}
+
+.tiptap [data-resize-handle] {
+  width: 10px;
+  height: 10px;
+  background: #3b82f6;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.tiptap [data-resize-wrapper]:hover [data-resize-handle],
+.tiptap [data-resize-container][data-resize-state="true"] [data-resize-handle] {
+  opacity: 1;
+}
+
+.tiptap [data-resize-handle="right"] {
+  cursor: ew-resize;
+  width: 6px;
+  border-radius: 3px;
+  transform: translateX(50%);
+}
+
+.tiptap [data-resize-handle="bottom"] {
+  cursor: ns-resize;
+  height: 6px;
+  border-radius: 3px;
+  transform: translateY(50%);
+}
