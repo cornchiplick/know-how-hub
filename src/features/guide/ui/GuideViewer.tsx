@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Mention from "@tiptap/extension-mention";
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
 import { useRouter } from "next/navigation";
 import { useEffect, useCallback, useState } from "react";
 import { mentionViewerRenderHTML } from "../lib/mentionConfig";
@@ -27,6 +28,10 @@ export function GuideViewer({ content }: GuideViewerProps) {
       }),
       Link.configure({
         openOnClick: false,
+      }),
+      Image.configure({
+        inline: false,
+        allowBase64: false,
       }),
       Mention.configure({
         HTMLAttributes: {

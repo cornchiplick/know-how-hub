@@ -189,3 +189,16 @@ body {
     border-color: #374151;
   }
 }
+
+/* Tiptap Image Styles */
+.tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

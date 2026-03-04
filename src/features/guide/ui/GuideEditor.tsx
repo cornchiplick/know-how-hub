@@ -1,14 +1,65 @@
 "use client";
 
+import { useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import { Selection } from "@tiptap/pm/state";
+import toast from "react-hot-toast";
 import { createMentionSuggestion } from "./mentionSuggestion";
 import { mentionRenderHTML } from "../lib/mentionConfig";
 import { parseContent } from "../lib/parseContent";
 import type { Editor } from "@tiptap/react";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+async function uploadImage(file: File): Promise<string> {
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    throw new Error(
+      "허용되지 않는 파일 형식입니다. (JPEG, PNG, GIF, WebP)",
+    );
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error("파일 크기는 5MB를 초과할 수 없습니다.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/uploads", { method: "POST", body: formData });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error ?? "이미지 업로드에 실패했습니다.");
+  }
+
+  return data.url as string;
+}
+
+function insertImage(editor: Editor, url: string) {
+  editor.chain().focus().setImage({ src: url }).run();
+}
+
+async function handleFiles(editor: Editor, files: File[]) {
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) continue;
+    try {
+      const url = await uploadImage(file);
+      insertImage(editor, url);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "이미지 업로드 실패");
+    }
+  }
+}
 
 interface GuideEditorProps {
   content?: string;
@@ -23,6 +74,9 @@ export function GuideEditor({
   excludeGuideId,
   editable = true,
 }: GuideEditorProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorRef = useRef<Editor | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     editable,
@@ -36,6 +90,10 @@ export function GuideEditor({
       Link.configure({
         openOnClick: false,
       }),
+      Image.configure({
+        inline: false,
+        allowBase64: false,
+      }),
       Mention.configure({
         HTMLAttributes: {
           class: "mention",
@@ -45,10 +103,72 @@ export function GuideEditor({
       }),
     ],
     content: parseContent(content),
+    onCreate: ({ editor: e }) => {
+      editorRef.current = e;
+    },
     onUpdate: ({ editor: e }: { editor: Editor }) => {
       onChange?.(JSON.stringify(e.getJSON()));
     },
+    editorProps: {
+      handleDrop(view, event) {
+        const files = event.dataTransfer?.files;
+        if (!files?.length) return false;
+
+        const imageFiles = Array.from(files).filter((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (!imageFiles.length) return false;
+
+        event.preventDefault();
+
+        // 드롭 위치에 커서 이동
+        const pos = view.posAtCoords({
+          left: event.clientX,
+          top: event.clientY,
+        });
+        if (pos) {
+          view.dispatch(
+            view.state.tr.setSelection(
+              Selection.near(view.state.doc.resolve(pos.pos)),
+            ),
+          );
+        }
+
+        if (editorRef.current) {
+          handleFiles(editorRef.current, imageFiles);
+        }
+        return true;
+      },
+      handlePaste(_view, event) {
+        const files = event.clipboardData?.files;
+        if (!files?.length) return false;
+
+        const imageFiles = Array.from(files).filter((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (!imageFiles.length) return false;
+
+        event.preventDefault();
+        if (editorRef.current) {
+          handleFiles(editorRef.current, imageFiles);
+        }
+        return true;
+      },
+    },
   });
+
+  const handleImageButtonClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!editor || !e.target.files?.length) return;
+      handleFiles(editor, Array.from(e.target.files));
+      e.target.value = "";
+    },
+    [editor],
+  );
 
   if (!editor) {
     return (
@@ -60,7 +180,21 @@ export function GuideEditor({
 
   return (
     <div className="guide-editor">
-      {editable && <EditorToolbar editor={editor} />}
+      {editable && (
+        <>
+          <EditorToolbar
+            editor={editor}
+            onImageClick={handleImageButtonClick}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </>
+      )}
       <EditorContent
         editor={editor}
         className={`prose prose-zinc dark:prose-invert max-w-none rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-700 ${
@@ -73,7 +207,13 @@ export function GuideEditor({
   );
 }
 
-function EditorToolbar({ editor }: { editor: Editor }) {
+function EditorToolbar({
+  editor,
+  onImageClick,
+}: {
+  editor: Editor;
+  onImageClick: () => void;
+}) {
   return (
     <div className="mb-2 flex flex-wrap gap-1 rounded-lg border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-700 dark:bg-zinc-800/50">
       <ToolbarButton
@@ -136,6 +276,8 @@ function EditorToolbar({ editor }: { editor: Editor }) {
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         label="{ }"
       />
+      <ToolbarDivider />
+      <ToolbarButton active={false} onClick={onImageClick} label="🖼" />
     </div>
   );
 }
@@ -171,4 +313,3 @@ function ToolbarDivider() {
     <div className="mx-1 h-6 w-px self-center bg-zinc-300 dark:bg-zinc-600" />
   );
 }
-
