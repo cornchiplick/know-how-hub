@@ -47,8 +47,10 @@ next-env.d.ts
 datas/*.db
 datas/*.db-journal
 datas/uploads/*
+datas/attachments/*
 !datas/.gitkeep
 !datas/uploads/.gitkeep
+!datas/attachments/.gitkeep
 
 # claude
 .claude/settings.local.json
