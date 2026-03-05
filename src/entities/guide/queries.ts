@@ -13,12 +13,12 @@ export const getGuideById = cache(async (id: number) => {
       id: true,
       title: true,
       content: true,
-      categoryId: true,
-      category: {
-        select: { id: true, name: true },
-      },
       createdAt: true,
       updatedAt: true,
+      tags: {
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      },
       attachments: {
         select: {
           id: true,
@@ -32,6 +32,21 @@ export const getGuideById = cache(async (id: number) => {
     },
   });
 });
+
+export async function getAllGuides() {
+  return prisma.guide.findMany({
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      updatedAt: true,
+      tags: {
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      },
+    },
+  });
+}
 
 export async function searchGuides(query: string, excludeId?: number) {
   const where: Prisma.GuideWhereInput = {};
