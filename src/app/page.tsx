@@ -22,10 +22,10 @@ export default function Home() {
 
         <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            카테고리
+            태그
           </h3>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            주제별로 정리된 가이드를 탐색하세요.
+            태그로 분류된 가이드를 탐색하세요.
           </p>
         </div>
 
