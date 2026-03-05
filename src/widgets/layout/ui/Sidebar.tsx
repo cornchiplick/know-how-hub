@@ -1,8 +1,9 @@
-import { getCategories } from "@/entities/category/queries";
+import { getAllGuides } from "@/entities/guide/queries";
+import { getAllTags } from "@/entities/tag/queries";
 import { SidebarContent } from "./SidebarContent";
 
 export async function Sidebar() {
-  const categories = await getCategories();
+  const [guides, tags] = await Promise.all([getAllGuides(), getAllTags()]);
 
-  return <SidebarContent categories={categories} />;
+  return <SidebarContent guides={guides} tags={tags} />;
 }
