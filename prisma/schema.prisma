@@ -18,12 +18,24 @@ model Category {
 }
 
 model Guide {
-  id         Int      @id @default(autoincrement())
-  title      String
-  content    String
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  sortOrder  Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int          @id @default(autoincrement())
+  title       String
+  content     String
+  categoryId  Int
+  category    Category     @relation(fields: [categoryId], references: [id])
+  sortOrder   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  attachments Attachment[]
+}
+
+model Attachment {
+  id           Int      @id @default(autoincrement())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  guideId      Int?
+  guide        Guide?   @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
 }
