@@ -71,6 +71,22 @@ export function GuideViewer({ content }: GuideViewerProps) {
         return;
       }
 
+      // 인라인 코드 클릭 → 클립보드 복사
+      const codeEl = target.closest<HTMLElement>("code");
+      if (codeEl) {
+        const text = codeEl.textContent ?? "";
+        navigator.clipboard.writeText(text).then(
+          () => {
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 2000);
+          },
+          () => {
+            // clipboard API 사용 불가 시 무시
+          },
+        );
+        return;
+      }
+
       // mention 클릭 → Ctrl/Cmd+Click으로 이동
       const mentionEl = target.closest<HTMLElement>(".mention-link");
       if (mentionEl) {

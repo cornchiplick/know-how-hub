@@ -92,6 +92,22 @@ body {
   background-color: #2d2d2d;
 }
 
+/* Viewer mode: 인라인 코드 클릭 복사 */
+.guide-viewer .tiptap code:not(pre code) {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.guide-viewer .tiptap code:not(pre code):hover {
+  background-color: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .guide-viewer .tiptap code:not(pre code):hover {
+    background-color: #4b5563;
+  }
+}
+
 .tiptap pre {
   background-color: #1e1e1e;
   border-radius: 0.5rem;
