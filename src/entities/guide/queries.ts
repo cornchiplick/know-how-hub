@@ -19,6 +19,16 @@ export const getGuideById = cache(async (id: number) => {
       },
       createdAt: true,
       updatedAt: true,
+      attachments: {
+        select: {
+          id: true,
+          filename: true,
+          originalName: true,
+          mimeType: true,
+          size: true,
+        },
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
 });

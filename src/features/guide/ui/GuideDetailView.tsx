@@ -7,8 +7,21 @@ import toast from "react-hot-toast";
 import { GuideViewer } from "./GuideViewer";
 import { GuideEditor } from "./GuideEditor";
 import { CategoryBadge } from "./CategoryBadge";
+import {
+  AttachmentUploader,
+  type AttachmentItem,
+} from "./AttachmentUploader";
+import { AttachmentList } from "./AttachmentList";
 import { updateGuide, deleteGuide } from "@/entities/guide";
 import { Modal } from "@/shared/ui";
+
+interface GuideAttachment {
+  id: number;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+}
 
 interface GuideData {
   id: number;
@@ -18,6 +31,7 @@ interface GuideData {
   category: { id: number; name: string };
   createdAt: string;
   updatedAt: string;
+  attachments?: GuideAttachment[];
 }
 
 interface GuideDetailViewProps {
@@ -47,6 +61,7 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editAttachments, setEditAttachments] = useState<AttachmentItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -56,6 +71,7 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   const handleEdit = () => {
     setEditTitle(guide.title);
     setEditContent(guide.content);
+    setEditAttachments(guide.attachments ?? []);
     setError(null);
     setIsEditing(true);
   };
@@ -127,6 +143,12 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
           onChange={(e) => setEditTitle(e.target.value)}
           placeholder="제목을 입력하세요"
           className="mb-4 w-full border-none bg-transparent text-2xl font-bold text-zinc-900 placeholder-zinc-300 outline-none dark:text-zinc-100 dark:placeholder-zinc-600"
+        />
+
+        <AttachmentUploader
+          guideId={guide.id}
+          attachments={editAttachments}
+          onChange={setEditAttachments}
         />
 
         <GuideEditor
@@ -217,6 +239,10 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
       <p className="mb-6 text-xs text-zinc-400 dark:text-zinc-500">
         최종 수정: {formattedDate}
       </p>
+
+      {guide.attachments && guide.attachments.length > 0 && (
+        <AttachmentList attachments={guide.attachments} />
+      )}
 
       <hr className="mb-6 border-zinc-200 dark:border-zinc-700" />
 

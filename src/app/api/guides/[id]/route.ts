@@ -23,6 +23,16 @@ export async function GET(
         category: { select: { id: true, name: true } },
         createdAt: true,
         updatedAt: true,
+        attachments: {
+          select: {
+            id: true,
+            filename: true,
+            originalName: true,
+            mimeType: true,
+            size: true,
+          },
+          orderBy: { createdAt: "asc" },
+        },
       },
     });
 

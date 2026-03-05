@@ -3,6 +3,10 @@
 import { useState, useTransition } from "react";
 import { GuideEditor } from "./GuideEditor";
 import { CategoryBadge } from "./CategoryBadge";
+import {
+  AttachmentUploader,
+  type AttachmentItem,
+} from "./AttachmentUploader";
 import { createGuide } from "@/entities/guide";
 
 interface GuideFormProps {
@@ -13,6 +17,7 @@ interface GuideFormProps {
 export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -20,7 +25,12 @@ export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
     setError(null);
 
     startTransition(async () => {
-      const result = await createGuide({ title, content, categoryId });
+      const result = await createGuide({
+        title,
+        content,
+        categoryId,
+        attachmentIds: attachments.map((a) => a.id),
+      });
       if (result && !result.success) {
         setError(result.error);
       }
@@ -39,6 +49,11 @@ export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
         onChange={(e) => setTitle(e.target.value)}
         placeholder="제목을 입력하세요"
         className="mb-4 w-full border-none bg-transparent text-2xl font-bold text-zinc-900 placeholder-zinc-300 outline-none dark:text-zinc-100 dark:placeholder-zinc-600"
+      />
+
+      <AttachmentUploader
+        attachments={attachments}
+        onChange={setAttachments}
       />
 
       <GuideEditor content={content} onChange={setContent} />

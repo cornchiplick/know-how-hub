@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { unlink } from "fs/promises";
+import path from "path";
 import { prisma } from "@/shared/lib/prisma";
+
+const ATTACHMENT_DIR = path.join(process.cwd(), "datas", "attachments");
 
 export type GuideListItem = {
   id: number;
@@ -28,10 +32,11 @@ export type CreateGuideInput = {
   title: string;
   content: string;
   categoryId: number;
+  attachmentIds?: number[];
 };
 
 export async function createGuide(input: CreateGuideInput) {
-  const { title, content, categoryId } = input;
+  const { title, content, categoryId, attachmentIds } = input;
 
   if (!title.trim()) {
     return { success: false as const, error: "제목을 입력해주세요." };
@@ -50,6 +55,14 @@ export async function createGuide(input: CreateGuideInput) {
       data: { title: title.trim(), content, categoryId },
       select: { id: true },
     });
+
+    // 미리 업로드된 첨부파일들을 Guide에 연결
+    if (attachmentIds && attachmentIds.length > 0) {
+      await prisma.attachment.updateMany({
+        where: { id: { in: attachmentIds }, guideId: null },
+        data: { guideId: guide.id },
+      });
+    }
 
     revalidatePath("/", "layout");
     redirect(`/guides/${guide.id}`);
@@ -132,10 +145,25 @@ export async function deleteGuide(id: number) {
   }
 
   try {
+    // 삭제 전 첨부파일 목록 조회
+    const attachments = await prisma.attachment.findMany({
+      where: { guideId: id },
+      select: { filename: true },
+    });
+
     const guide = await prisma.guide.delete({
       where: { id },
       select: { categoryId: true },
     });
+
+    // 물리 파일 삭제 (DB cascade로 레코드는 이미 삭제됨)
+    for (const att of attachments) {
+      try {
+        await unlink(path.join(ATTACHMENT_DIR, att.filename));
+      } catch {
+        // 파일이 이미 없을 수 있음
+      }
+    }
 
     revalidatePath("/", "layout");
     return { success: true as const, categoryId: guide.categoryId };
