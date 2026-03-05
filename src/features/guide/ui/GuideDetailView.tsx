@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { GuideViewer } from "./GuideViewer";
 import { GuideEditor } from "./GuideEditor";
-import { CategoryBadge } from "./CategoryBadge";
+import { TagInput } from "./TagInput";
 import {
   AttachmentUploader,
   type AttachmentItem,
@@ -23,14 +23,18 @@ interface GuideAttachment {
   size: number;
 }
 
+interface TagData {
+  id: number;
+  name: string;
+}
+
 interface GuideData {
   id: number;
   title: string;
   content: string;
-  categoryId: number;
-  category: { id: number; name: string };
   createdAt: string;
   updatedAt: string;
+  tags?: TagData[];
   attachments?: GuideAttachment[];
 }
 
@@ -61,6 +65,7 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editTags, setEditTags] = useState<string[]>([]);
   const [editAttachments, setEditAttachments] = useState<AttachmentItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -71,6 +76,7 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   const handleEdit = () => {
     setEditTitle(guide.title);
     setEditContent(guide.content);
+    setEditTags((guide.tags ?? []).map((t) => t.name));
     setEditAttachments(guide.attachments ?? []);
     setError(null);
     setIsEditing(true);
@@ -89,16 +95,23 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
         id: guide.id,
         title: editTitle,
         content: editContent,
+        tagNames: editTags,
       });
 
       if (result.success) {
         queryClient.setQueryData(queryKey, (old: GuideData | undefined) =>
-          old ? { ...old, title: editTitle, content: editContent } : old,
+          old
+            ? {
+                ...old,
+                title: editTitle,
+                content: editContent,
+                tags: editTags.map((name, i) => ({ id: i, name })),
+              }
+            : old,
         );
         setIsEditing(false);
         toast.success("저장되었습니다.");
         queryClient.invalidateQueries({ queryKey });
-        queryClient.invalidateQueries({ queryKey: ["guides", guide.categoryId] });
       } else {
         setError(result.error);
       }
@@ -113,7 +126,7 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
 
       if (result.success) {
         setIsDeleteModalOpen(false);
-        router.push(`/categories/${result.categoryId}`);
+        router.push("/");
       } else {
         setDeleteError(result.error);
       }
@@ -133,10 +146,6 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   if (isEditing) {
     return (
       <div className="mx-auto max-w-3xl py-8">
-        <div className="mb-6">
-          <CategoryBadge name={guide.category.name} />
-        </div>
-
         <input
           type="text"
           value={editTitle}
@@ -144,6 +153,13 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
           placeholder="제목을 입력하세요"
           className="mb-4 w-full border-none bg-transparent text-2xl font-bold text-zinc-900 placeholder-zinc-300 outline-none dark:text-zinc-100 dark:placeholder-zinc-600"
         />
+
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            태그
+          </label>
+          <TagInput tags={editTags} onChange={setEditTags} />
+        </div>
 
         <AttachmentUploader
           guideId={guide.id}
@@ -187,7 +203,22 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
   return (
     <div className="mx-auto max-w-3xl py-8">
       <div className="mb-6 flex items-center justify-between">
-        <CategoryBadge name={guide.category.name} />
+        <div className="flex flex-wrap gap-1.5">
+          {guide.tags && guide.tags.length > 0 ? (
+            guide.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+              >
+                #{tag.name}
+              </span>
+            ))
+          ) : (
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">
+              태그 없음
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           <button
             type="button"

@@ -5,3 +5,4 @@ export { GuideDetailView } from "./ui/GuideDetailView";
 export { AttachmentUploader } from "./ui/AttachmentUploader";
 export { AttachmentList } from "./ui/AttachmentList";
 export { ImageLightbox } from "./ui/ImageLightbox";
+export { TagInput } from "./ui/TagInput";
