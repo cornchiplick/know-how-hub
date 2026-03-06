@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
-
-const UPLOAD_DIR = path.join(process.cwd(), "datas", "uploads");
+import { UPLOAD_DIR } from "@/shared/lib/upload";
 
 const MIME_MAP: Record<string, string> = {
   ".jpg": "image/jpeg",
