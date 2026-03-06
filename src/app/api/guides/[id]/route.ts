@@ -19,10 +19,12 @@ export async function GET(
         id: true,
         title: true,
         content: true,
-        categoryId: true,
-        category: { select: { id: true, name: true } },
         createdAt: true,
         updatedAt: true,
+        tags: {
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        },
         attachments: {
           select: {
             id: true,

@@ -2,21 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { GuideEditor } from "./GuideEditor";
-import { CategoryBadge } from "./CategoryBadge";
+import { TagInput } from "./TagInput";
 import {
   AttachmentUploader,
   type AttachmentItem,
 } from "./AttachmentUploader";
 import { createGuide } from "@/entities/guide";
 
-interface GuideFormProps {
-  categoryId: number;
-  categoryName: string;
-}
-
-export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
+export function GuideForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -28,7 +24,7 @@ export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
       const result = await createGuide({
         title,
         content,
-        categoryId,
+        tagNames: tags,
         attachmentIds: attachments.map((a) => a.id),
       });
       if (result && !result.success) {
@@ -39,10 +35,6 @@ export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
 
   return (
     <div className="mx-auto max-w-3xl py-8">
-      <div className="mb-6">
-        <CategoryBadge name={categoryName} />
-      </div>
-
       <input
         type="text"
         value={title}
@@ -50,6 +42,13 @@ export function GuideForm({ categoryId, categoryName }: GuideFormProps) {
         placeholder="제목을 입력하세요"
         className="mb-4 w-full border-none bg-transparent text-2xl font-bold text-zinc-900 placeholder-zinc-300 outline-none dark:text-zinc-100 dark:placeholder-zinc-600"
       />
+
+      <div className="mb-4">
+        <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          태그
+        </label>
+        <TagInput tags={tags} onChange={setTags} />
+      </div>
 
       <AttachmentUploader
         attachments={attachments}

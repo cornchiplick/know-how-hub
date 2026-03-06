@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
-
-const UPLOAD_DIR = path.join(process.cwd(), "datas", "uploads");
+import { UPLOAD_DIR } from "@/shared/lib/upload";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 

@@ -1,9 +1,8 @@
 export {
-  getGuidesByCategory,
   createGuide,
   updateGuide,
   deleteGuide,
-  type GuideListItem,
+  resetAllData,
   type CreateGuideInput,
   type UpdateGuideInput,
 } from "./actions";

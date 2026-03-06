@@ -1,7 +1,7 @@
 "use client";
 
-import { resetAllData } from "@/entities";
 import { useTransition } from "react";
+import { resetAllData } from "@/entities/guide/actions";
 
 export function Header() {
   const [isPending, startTransition] = useTransition();
