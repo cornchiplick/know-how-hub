@@ -7,6 +7,8 @@ interface TagItem {
   name: string;
 }
 
+type FilterMode = "or" | "and";
+
 interface TagFilterModalProps {
   tags: TagItem[];
   activeTagIds: Set<number>;
@@ -15,6 +17,8 @@ interface TagFilterModalProps {
   onDeactivateAll: () => void;
   showUntagged: boolean;
   onToggleUntagged: () => void;
+  filterMode: FilterMode;
+  onFilterModeChange: (mode: FilterMode) => void;
   onClose: () => void;
 }
 
@@ -26,6 +30,8 @@ export function TagFilterModal({
   onDeactivateAll,
   showUntagged,
   onToggleUntagged,
+  filterMode,
+  onFilterModeChange,
   onClose,
 }: TagFilterModalProps) {
   useEffect(() => {
@@ -64,23 +70,49 @@ export function TagFilterModal({
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             태그 필터 관리
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">
-              태그 없음
-            </span>
-            <button
-              type="button"
-              onClick={onToggleUntagged}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
-                showUntagged ? "bg-blue-600" : "bg-zinc-300 dark:bg-zinc-600"
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform ${
-                  showUntagged ? "translate-x-5" : "translate-x-0"
+          <div className="flex items-center gap-4">
+            <div className="flex rounded-md border border-zinc-200 dark:border-zinc-700">
+              <button
+                type="button"
+                onClick={() => onFilterModeChange("or")}
+                className={`px-3 py-1 text-xs font-medium transition-colors ${
+                  filterMode === "or"
+                    ? "bg-blue-600 text-white"
+                    : "text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                } rounded-l-md`}
+              >
+                OR
+              </button>
+              <button
+                type="button"
+                onClick={() => onFilterModeChange("and")}
+                className={`px-3 py-1 text-xs font-medium transition-colors ${
+                  filterMode === "and"
+                    ? "bg-blue-600 text-white"
+                    : "text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                } rounded-r-md`}
+              >
+                AND
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                태그 없음
+              </span>
+              <button
+                type="button"
+                onClick={onToggleUntagged}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                  showUntagged ? "bg-blue-600" : "bg-zinc-300 dark:bg-zinc-600"
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform ${
+                    showUntagged ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
 

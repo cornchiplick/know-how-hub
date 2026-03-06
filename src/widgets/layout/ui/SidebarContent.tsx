@@ -18,6 +18,7 @@ interface GuideItem {
 }
 
 type SortMode = "updatedAt" | "title";
+type FilterMode = "or" | "and";
 
 interface SidebarContentProps {
   guides: GuideItem[];
@@ -32,6 +33,7 @@ export function SidebarContent({ guides, tags }: SidebarContentProps) {
   const [sortMode, setSortMode] = useState<SortMode>("updatedAt");
   const [showTagModal, setShowTagModal] = useState(false);
   const [showUntagged, setShowUntagged] = useState(true);
+  const [filterMode, setFilterMode] = useState<FilterMode>("or");
 
   const toggleTag = (tagId: number) => {
     setActiveTagIds((prev) => {
@@ -53,6 +55,11 @@ export function SidebarContent({ guides, tags }: SidebarContentProps) {
     if (!allActive || !showUntagged) {
       filtered = guides.filter((g) => {
         if (g.tags.length === 0) return showUntagged;
+        if (filterMode === "and") {
+          return [...activeTagIds].every((id) =>
+            g.tags.some((t) => t.id === id),
+          );
+        }
         return g.tags.some((t) => activeTagIds.has(t.id));
       });
     }
@@ -65,7 +72,7 @@ export function SidebarContent({ guides, tags }: SidebarContentProps) {
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     });
-  }, [guides, activeTagIds, allActive, showUntagged, sortMode]);
+  }, [guides, activeTagIds, allActive, showUntagged, sortMode, filterMode]);
 
   return (
     <aside className="flex w-60 flex-col border-r border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
@@ -113,7 +120,7 @@ export function SidebarContent({ guides, tags }: SidebarContentProps) {
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
               {allActive
                 ? `${tags.length}개 태그로 필터`
-                : `${activeTagIds.size}/${tags.length}개 태그로 필터`}
+                : `${activeTagIds.size}/${tags.length}개 태그로 필터 (${filterMode.toUpperCase()})`}
             </span>
             <button
               type="button"
@@ -189,6 +196,8 @@ export function SidebarContent({ guides, tags }: SidebarContentProps) {
           onDeactivateAll={() => setActiveTagIds(new Set())}
           showUntagged={showUntagged}
           onToggleUntagged={() => setShowUntagged((prev) => !prev)}
+          filterMode={filterMode}
+          onFilterModeChange={setFilterMode}
           onClose={() => setShowTagModal(false)}
         />
       )}
