@@ -13,6 +13,7 @@ import {
 } from "./AttachmentUploader";
 import { AttachmentList } from "./AttachmentList";
 import { updateGuide, deleteGuide } from "@/entities/guide";
+import { MarkdownExportButton } from "./MarkdownExportButton";
 import { Modal } from "@/shared/ui";
 
 interface GuideAttachment {
@@ -220,6 +221,7 @@ export function GuideDetailView({ guide: initialGuide }: GuideDetailViewProps) {
           )}
         </div>
         <div className="flex items-center gap-1">
+          <MarkdownExportButton guide={guide} />
           <button
             type="button"
             onClick={handleEdit}
