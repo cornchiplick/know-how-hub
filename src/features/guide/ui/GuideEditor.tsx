@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Mention from "@tiptap/extension-mention";
@@ -61,6 +61,10 @@ async function handleFiles(editor: Editor, files: File[]) {
   }
 }
 
+export interface GuideEditorHandle {
+  setHtmlContent: (html: string) => void;
+}
+
 interface GuideEditorProps {
   content?: string;
   onChange?: (json: string) => void;
@@ -68,12 +72,8 @@ interface GuideEditorProps {
   editable?: boolean;
 }
 
-export function GuideEditor({
-  content,
-  onChange,
-  excludeGuideId,
-  editable = true,
-}: GuideEditorProps) {
+export const GuideEditor = forwardRef<GuideEditorHandle, GuideEditorProps>(
+  function GuideEditor({ content, onChange, excludeGuideId, editable = true }, ref) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<Editor | null>(null);
 
@@ -164,6 +164,12 @@ export function GuideEditor({
     },
   });
 
+  useImperativeHandle(ref, () => ({
+    setHtmlContent(html: string) {
+      editor?.commands.setContent(html);
+    },
+  }), [editor]);
+
   const handleImageButtonClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
@@ -212,7 +218,7 @@ export function GuideEditor({
       />
     </div>
   );
-}
+});
 
 function EditorToolbar({
   editor,
